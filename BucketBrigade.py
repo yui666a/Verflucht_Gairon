@@ -51,6 +51,7 @@ for cycle in range(MAX_CYCLE):
                 print("終了します")
                 break
             flag = Verflucht.fieldCheck()
+
     #     while (not Verflucht.Q.getStateIsGoal()): #終状態であればbreak
 
     #         #現在の状態を取得
