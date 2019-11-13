@@ -82,6 +82,27 @@ aCard : Card = Card(-1, True)
 state = Q()
 
 # def here
+def beatable():
+    """
+    手持ちの武器の合計が，場にいるクリーチャーの最弱を倒せるか判定する
+
+    Returns
+    -------
+    True : 手持ちの武器の合計が，場にいるクリーチャーの最弱を倒せる
+    False: 手持ちの武器の合計が，場にいるクリーチャーの最弱を倒せない
+    """
+    global fieldCreature, handWeapon
+    sumWeapons : int = 0
+
+    # TODO : カードがあるかチェックしたい
+    # 武器とクリーチャー，それぞれの合計値を算出する
+    for i in range(handWeapon.__len__()):
+        sumWeapons += handWeapon[i].num
+    if(not fieldCreature.__len__() == 0):
+        if(fieldCreature[0].num <= sumWeapons):
+            return True
+    return False
+
 def getState():
     """
     現在の状態を返す
@@ -104,6 +125,43 @@ def getMaxState():
 
 def getStateIsGoal():
     return state.state == state.MAX_STATE
+
+def setState():
+    global life, fieldCreature, handWeapon
+    if(not life == 1):
+        if(fieldCreature.__len__() <= 4):
+            if(beatable() == True):
+                state.state = 0
+            else:
+                state.state = 1
+        elif(fieldCreature.__len__() == 5):
+            if(beatable() == True):
+                state.state = 2
+            else:
+                state.state = 3
+        else:
+            if(beatable() == True):
+                state.state = 4
+            else:
+                state.state = 5
+    else:
+        if(fieldCreature.__len__() <= 4):
+            if(beatable() == True):
+                state.state = 6
+            else:
+                state.state = 7
+        elif(fieldCreature.__len__() == 5):
+            if(beatable() == True):
+                state.state = 8
+            else:
+                state.state = 9
+        else:
+            if(beatable() == True):
+                state.state = 10
+            else:
+                state.state = 11
+    if(deck.__len__() == 0):
+        state.state = 12
 
 def init():
     """
