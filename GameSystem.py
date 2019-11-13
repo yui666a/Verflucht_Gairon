@@ -42,18 +42,18 @@ class Q:
 
     S（状態集合の定義）：
     状態  Life=1  CRT 倒せる   
-    S0   T       4   T  
-    S1   F       4   T  
-    S2   T       5   T  
-    S3   F       5   T  
-    S4   T       6   T  
-    S5   F       6   T  
-    S6   T       4   F  
-    S7   F       4   F  
-    S8   T       5   F  
-    S9   F       5   F  
-    S10  T       6   F  
-    S11  F       6   F  
+    S0   F       4   T  
+    S1   F       4   F  
+    S2   F       5   T  
+    S3   F       5   F  
+    S4   F       6   T  
+    S5   F       6   F  
+    S6   T       4   T  
+    S7   T       4   F
+    S8   T       5   T
+    S9   T       5   F
+    S10  T       6   T  
+    S11  T       6   F  
     S12                  山札がなくなった
 
     Attributes
@@ -111,6 +111,7 @@ def getState():
     -------
     state : int
     """
+    setState()
     return state.state
 
 def getMaxState():
@@ -170,6 +171,7 @@ def init():
     lifeを初期値に戻す
     """
     global life, deck, fieldCreature, handWeapon
+    print("init")
     deck.clear()
     for i in range(MAISU):
         if(i % 2 == 0):
@@ -349,6 +351,7 @@ def printState():
     print("山札残り枚数: {0}".format(deck.__len__()))
 
 def fieldCheck():
+    print("nowstate: ",getState())
     if(deck.__len__() == 0):
         print("山札の枚数が0になりました．おめでとうございます!!")
         clear()
@@ -489,7 +492,7 @@ def chooseCommand(n):
     # except ValueError:
     #     print("<数字を入力してください>")
     #     return True
-
+    print("prestate: ",getState())
     if(n == 0):
         help()
     elif(n == 1):
@@ -520,10 +523,10 @@ def chooseCommand(n):
         print("コマンドが間違っています")
     return True
 
-def main():
+# def main():
     # help()
     # print("\nAre you ready?  Let's get started!!")
-    init()
+    # init()
     # flag = True
     # while(flag):
     #     flag = chooseCommand()
@@ -532,4 +535,4 @@ def main():
     #         break
     #     flag = fieldCheck()
 
-main()
+# main()
