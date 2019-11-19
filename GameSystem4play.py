@@ -2,9 +2,7 @@
 Verflucht!のゲームシステム
 
 int型の入力のみで動作します．
-
 クリーチャーや武器の選択もリストのインデックスで選択してください．
-
 また，複数の武器を洗濯する時は，インデックスの値の間をスペースで区切ってください
 """
 #-*- coding:utf-8 -*-
@@ -36,158 +34,29 @@ class Card :
         # self < other
         return self.num < other.num
 
-class Q:
-    """
-    学習に用いる情報をまとめたクラス.
-
-    S（状態集合の定義）：
-    状態  Life=1  CRT 倒せる
-    S0   F       4   F
-    S1   F       4   T
-    S2   F       5   F
-    S3   F       5   T
-    S4   F       6   F
-    S5   F       6   T
-    S6   T       4   F
-    S7   T       4   T
-    S8   T       5   F
-    S9   T       5   T
-    S10  T       6   F
-    S11  T       6   T
-    S12                  life = 0
-    S13                  山札がなくなった
-
-    Attributes
-    ----------
-    MAX_STATE : int
-        取りうる状態の数
-    state : int
-        現在の状態
-
-    """
-    MAX_STATE : int
-    state : int
-
-    def __init__(self, max_state):
-        self.MAX_STATE : int = max_state
-        self.state : int = 0
-        self.reward = 0;
-
 
 # global variable
-max_state = 13
 startingLife = 3
 MAISU : int = 80
 life : int = startingLife
-# deck =  [Card] * MAISU
-deck = []
+deck =  [Card] * MAISU
 fieldCreature = []
 handWeapon = []
 aCard : Card = Card(-1, True)
-state = Q(max_state)
+
 
 # def here
-def beatable():
-    """
-    手持ちの武器の合計が，場にいるクリーチャーの最弱を倒せるか判定する
-
-    Returns
-    -------
-    True : 手持ちの武器の合計が，場にいるクリーチャーの最弱を倒せる
-    False: 手持ちの武器の合計が，場にいるクリーチャーの最弱を倒せない
-    """
-    global fieldCreature, handWeapon
-    sumWeapons : int = 0
-
-    # TODO : カードがあるかチェックしたい
-    # 武器とクリーチャー，それぞれの合計値を算出する
-    for i in range(handWeapon.__len__()):
-        sumWeapons += handWeapon[i].num
-    if(not fieldCreature.__len__() == 0):
-        if(fieldCreature[0].num <= sumWeapons):
-            return True
-    return False
-
-def getState():
-    """
-    現在の状態を返す
-
-    Returns
-    -------
-    state : int
-    """
-    setState()
-    return state.state
-
-def getReward():
-    return state.reward
-
-def getMaxState():
-    """
-    現在の状態を返す
-
-    Returns
-    -------
-    state : int
-    """
-    return state.MAX_STATE
-
-def getStateIsGoal():
-    return state.state == state.MAX_STATE
-
-def setState():
-    global life, fieldCreature, handWeapon
-    if(not life == 1):
-        if(fieldCreature.__len__() <= 4):
-            if(beatable() == False):
-                state.state = 0
-            else:
-                state.state = 1
-        elif(fieldCreature.__len__() == 5):
-            if(beatable() == False):
-                state.state = 2
-            else:
-                state.state = 3
-        else:
-            if(beatable() == False):
-                state.state = 4
-            else:
-                state.state = 5
-    else:
-        if(fieldCreature.__len__() <= 4):
-            if(beatable() == False):
-                state.state = 6
-            else:
-                state.state = 7
-        elif(fieldCreature.__len__() == 5):
-            if(beatable() == False):
-                state.state = 8
-            else:
-                state.state = 9
-        else:
-            if(beatable() == False):
-                state.state = 10
-            else:
-                state.state = 11
-    if(life == 0):
-        state.state = 12
-    if(deck.__len__() == 0):
-        state.state = 13
-
 def init():
     """
     カードを初期化し，山札をランダムな順番に並べる
     また，fieldCreatureやhandWeaponも初期化し，
     lifeを初期値に戻す
     """
-    global life, deck, fieldCreature, handWeapon
-    # print("init")
-    deck.clear()
     for i in range(MAISU):
         if(i % 2 == 0):
-            deck.append(Card(1 + int(i/2), True))
+            deck[i] = Card(1 + int(i/2), True)
         else:
-            deck.append(Card(1 + int(i/2), False))
+            deck[i] = Card(1 + int(i/2), False)
     random.shuffle(deck)
     fieldCreature.clear()
     handWeapon.clear()
@@ -211,11 +80,11 @@ def draw():
     if(drawnCard.isCreature == True):
         fieldCreature.append(drawnCard)
         fieldCreature.sort()
-        # print("{0}\t{1}".format(drawnCard.num, "Creature"))
+        print("{0}\t{1}".format(drawnCard.num, "Creature"))
     else:
         handWeapon.append(drawnCard)
         handWeapon.sort()
-        # print("{0}\t{1}".format(drawnCard.num, "Weapon"))
+        print("{0}\t{1}".format(drawnCard.num, "Weapon"))
     return drawnCard
 
 def creaturesBack(creatures : [int]):
@@ -295,7 +164,6 @@ def slay(creatures : [int], weapons : [int]):
 
         # 武器の合計値がクリーチャー合計値より高かった場合(成功)
         print("○ クリーチャーを退治できました")
-        state.reward = 5 - (sumCreatures - sumWeapons)
         fieldCreature = [i for j, i in enumerate(fieldCreature) if j not in creatures]
         handWeapon = [i for j, i in enumerate(handWeapon) if j not in weapons]
         return True
@@ -362,7 +230,6 @@ def printState():
     print("山札残り枚数: {0}".format(deck.__len__()))
 
 def fieldCheck():
-    print("nowstate: ",getState())
     if(deck.__len__() == 0):
         print("山札の枚数が0になりました．おめでとうございます!!")
         clear()
@@ -491,19 +358,19 @@ def help():
     print(" 6 : printDeck \t\t(使用禁止 デバッグ用)")
     print("-1 : exit \t\t(ゲームを終了する)")
 
-def chooseCommand(n):
+def chooseCommand():
     """
     入力を受け付け，コマンドを実行する
     '-1'と入力された時のみ False を返す.
     """
 
     # print("\nCommand:", end=' ')
-    # try:
-    #     n = int(input("\nCommand:　"))
-    # except ValueError:
-    #     print("<数字を入力してください>")
-    #     return True
-    print("prestate: ",getState())
+    try:
+        n = int(input("\nCommand:　"))
+    except ValueError:
+        print("<数字を入力してください>")
+        return True
+
     if(n == 0):
         help()
     elif(n == 1):
@@ -534,16 +401,16 @@ def chooseCommand(n):
         print("コマンドが間違っています")
     return True
 
-# def main():
-    # help()
-    # print("\nAre you ready?  Let's get started!!")
-    # init()
-    # flag = True
-    # while(flag):
-    #     flag = chooseCommand()
-    #     if(not flag):
-    #         print("終了します")
-    #         break
-    #     flag = fieldCheck()
+def main():
+    help()
+    print("\nAre you ready?  Let's get started!!")
+    init()
+    flag = True
+    while(flag):
+        flag = chooseCommand()
+        if(not flag):
+            print("終了します")
+            break
+        flag = fieldCheck()
 
-# main()
+main()
