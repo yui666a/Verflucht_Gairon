@@ -40,7 +40,7 @@ VALUES = ((1,11), 2, 3, 4, 5, 6, 7, 8, 9, 10)
 COUNTS = ( -1, 0, 1)    #ハイローシステム  ランニングカウントは1デックあたりの合計が0なので初期設定IRCは0でよい、今のところ正規化なし
 
 #------------------------------------------------------
-def get_value(rank, sum):   
+def get_value(rank, sum):
     if(rank == 'J' or rank == 'Q' or rank == 'K'):
         return VALUES[9]
 
