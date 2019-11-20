@@ -8,7 +8,7 @@ Verflucht = GameSystem
 ACTION : int = 4;
 STATE : int= Verflucht.getMaxState();
 Q = [[0]*ACTION]*STATE
-REPEAT : int = 1
+REPEAT : int = 10
 MAX_CYCLE : int = 1
 Cbid : float = 0.1
 rnd = random.random()
@@ -17,17 +17,24 @@ def actionSelect():
     s = Verflucht.getState()
     if(s % 2 == 0):
         Verflucht.printState()
-        print("倒せません\n")
         return [1]
     else:
         Verflucht.printState()
-        # Verflucht.slay()
         print("タオセルソウデス\n")
+        #クリーチャーのリストを取得
+        fc = Verflucht.getFieldCreature()
+        #武器のリストを取得
+        hw = Verflucht.getHandWeapon()
+        #ただドローしてるだけ
+        #[コマンド選択, [クリーチャーの配列(1体のみ)], [武器の配列(インデックスで複数指定可能)]]
         return [1, [0], [0]]
 
 def actionSelect2():
     s = Verflucht.getState()
-    print(Verflucht.attackingMonster)
+    print("おそってくるモンスターの合計値", Verflucht.attackingMonster)
+    #武器のリストを取得
+    hw = Verflucht.getHandWeapon()
+    #ライフで受けてる
     return [-1]
 
 
@@ -49,7 +56,6 @@ def main():
 
     for cycle in range(MAX_CYCLE):
 
-        # print("------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n")
         total_reward : float = 0;
         total_step : float = 0;
         reward1 : int = 0;
@@ -68,17 +74,17 @@ def main():
             preState = 0;
             flag = 0
             while(not flag == -1):
-                for i in range(ACTION):
-                    bid[state][i] = Cbid * Q[state][i]
-                # flag = Verflucht.chooseCommand(int(input("\nCommand:　")))
+                # for i in range(ACTION):
+                #     bid[state][i] = Cbid * Q[state][i]
+
+                #通常状態の選択
                 flag = Verflucht.chooseCommand(actionSelect())
                 if(flag == -1 or flag == 1 or flag == 2):
-                    print("終了します")
+                    # print("終了します")
                     break
                 elif(flag == 3 or flag == 4):
                     Verflucht.printState()
-                    # Verflucht.afterCheck(list(map(int, input("handWeapon index: ").split())))
+                    #強制戦闘状態の選択
                     Verflucht.afterCheck(actionSelect2())
-                # flag = Verflucht.fieldCheck()
 
 main()

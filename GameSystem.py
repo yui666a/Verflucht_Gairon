@@ -344,6 +344,18 @@ def printFieldCreature():
         print("{0} ".format(i.num), end=' ')
     print()
 
+def getFieldCreature():
+    fc = []
+    for i in fieldCreature:
+        fc.append(i.num)
+    return fc
+
+def getHandWeapon():
+    hw = []
+    for i in handWeapon:
+        hw.append(i.num)
+    return hw
+
 def printHandWeapon():
     """
     手札の武器を表示
