@@ -23,6 +23,8 @@ def actionSelect():
         Verflucht.printState()
         # Verflucht.slay()
         print("タオセルソウデス\n")
+        fc = Verflucht.getFieldCreature()
+        hw = Verflucht.getHandWeapon()
         return [1, [0], [0]]
 
 def actionSelect2():
