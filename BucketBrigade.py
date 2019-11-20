@@ -18,12 +18,17 @@ def actionSelect():
     if(s % 2 == 0):
         Verflucht.printState()
         print("倒せません\n")
-        return 1
+        return [1]
     else:
         Verflucht.printState()
         # Verflucht.slay()
         print("タオセルソウデス\n")
-        return 1
+        return [1, [0], [0]]
+
+def actionSelect2():
+    s = Verflucht.getState()
+    print(Verflucht.attackingMonster)
+    return [-1]
 
 
 def main():
@@ -61,15 +66,19 @@ def main():
             #状態を初期化
             Verflucht.init()
             preState = 0;
-            flag = True
-            while(flag):
+            flag = 0
+            while(not flag == -1):
                 for i in range(ACTION):
                     bid[state][i] = Cbid * Q[state][i]
                 # flag = Verflucht.chooseCommand(int(input("\nCommand:　")))
                 flag = Verflucht.chooseCommand(actionSelect())
-                if(not flag):
+                if(flag == -1 or flag == 1 or flag == 2):
                     print("終了します")
                     break
-                flag = Verflucht.fieldCheck()
+                elif(flag == 3 or flag == 4):
+                    Verflucht.printState()
+                    # Verflucht.afterCheck(list(map(int, input("handWeapon index: ").split())))
+                    Verflucht.afterCheck(actionSelect2())
+                # flag = Verflucht.fieldCheck()
 
 main()
