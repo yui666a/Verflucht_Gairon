@@ -75,7 +75,7 @@ class Q:
 
 
 # global variable
-max_state = 13
+max_state = 14
 startingLife = 3
 MAISU : int = 80
 life : int = startingLife
@@ -86,7 +86,8 @@ handWeapon = []
 aCard : Card = Card(-1, True)
 state = Q(max_state)
 check = 0
-attackingMonster = 0
+attackingMonster = []
+score = 0
 
 # def here
 def beatable():
@@ -182,9 +183,10 @@ def init():
     また，fieldCreatureやhandWeaponも初期化し，
     lifeを初期値に戻す
     """
-    global life, deck, fieldCreature, handWeapon
+    global life, deck, fieldCreature, handWeapon, state
     # print("init")
     deck.clear()
+    state.state = 0
     for i in range(MAISU):
         if(i % 2 == 0):
             deck.append(Card(1 + int(i/2), True))
@@ -285,19 +287,30 @@ def slay(creatures : [int], weapons : [int]):
     try:
         # TODO : カードがあるかチェックしたい
         # 武器とクリーチャー，それぞれの合計値を算出する
-        for i in range(creatures.__len__()):
-            sumCreatures += fieldCreature[creatures[i]].num
-        for i in range(weapons.__len__()):
-            sumWeapons += handWeapon[weapons[i]].num
+        # print(1111111111)
+        # print(creatures.__len__())
 
+        for i in range(creatures.__len__()):
+            # print(creatures[i])
+            sumCreatures += fieldCreature[creatures[i]].num
+            # print(fieldCreature[creatures[i]].num, end=" ")
+        # print(weapons)
+        # print(2222222222)
+        for i in range(weapons.__len__()):
+            # print(weapons[i])
+            sumWeapons += handWeapon[weapons[i]].num
+            # print(handWeapon[
+            # weapons[i]].num, end=" ")
         # 武器の合計値がクリーチャー合計値より低かった場合(失敗)
+        # print(3333333333)
         if(sumWeapons < sumCreatures):
             print("x クリーチャーを退治できませんでした")
-            return False
+            return True
 
         # 武器の合計値がクリーチャー合計値より高かった場合(成功)
-        print("○ クリーチャーを退治できました")
-        state.reward = 5 - (sumCreatures - sumWeapons)
+        # print("○ クリーチャーを退治できました")
+        state.reward = 50 - (sumWeapons - sumCreatures)
+        # print("creature: {0}\tweapon: {1}\t reward: {2}".format(sumCreatures, sumWeapons, state.reward))
         fieldCreature = [i for j, i in enumerate(fieldCreature) if j not in creatures]
         handWeapon = [i for j, i in enumerate(handWeapon) if j not in weapons]
         return True
@@ -310,9 +323,10 @@ def slay(creatures : [int], weapons : [int]):
         return False
 
 def subLife():
-    global life
-    print("life: {0} -> {1}".format(life, life - 1))
+    global life, state
+    # print("life: {0} -> {1}".format(life, life - 1))
     life -= 1;
+    state.reward = -100
 
 def printDeck():
     """
@@ -385,34 +399,36 @@ def fieldCheck():
         3: 連番
         4: ６体
     """
-    global check, attackingMonster
+    global check, attackingMonster, fieldCreature
 
-    print("nowstate: ",getState())
+    # print("nowstate: ",getState())
     if(deck.__len__() == 0):
-        print("山札の枚数が0になりました．おめでとうございます!!")
-        # clear()
+        # print("山札の枚数が0になりました．おめでとうございます!!")
+        clear()
         check = 1
         return 1
     if(life == 0):
-        print("\nGAME OVER")
+        # print("GAME OVER")
         gameOver()
         check = 2
         return 2
     #連番になった時の動作
     l = isConsecutive()
     if(not l == []):
-        print("場のクリーチャーが連番になりました．強制バトルを開始します")
+        # print("場のクリーチャーが連番になりました．強制バトルを開始します")
         # forcedBattleConsecutive()
         sumC = 0
+        attackingMonster.clear()
         for i in l:
-            sumC += i
-        attackingMonster = sumC
+            sumC += fieldCreature[i].num
+            attackingMonster.append(fieldCreature[i].num)
         check = 3
         return 3
     if(fieldCreature.__len__() >= 6):
-        print("場のクリーチャーが6体になりました．強制バトルを開始します")
+        # print("場のクリーチャーが6体になりました．強制バトルを開始します")
         # forcedBattle6()
-        attackingMonster = fieldCreature[-1].num
+        attackingMonster.clear()
+        attackingMonster.append(fieldCreature[-1].num)
         check = 4
         return 4
     
@@ -422,23 +438,28 @@ def clear():
     """
     クリア時のスコア計算を行う
     """
-    global fieldCreature
+    global fieldCreature, score
     for i in range(life):
         fieldCreature = fieldCreature[1:]
-    sum = 0;
+    sumA = 0;
     for i in fieldCreature:
-        sum += i.num
-    print("スコア: {0}".format(820 - sum))
+        sumA += i.num
+    score = (MAISU/2+1)*MAISU/4 - sumA
+    state.reward = score
+    # print("スコア: {0}\n".format(score))
 
 def gameOver():
-    global fieldCreature, deck
-    sum = 0;
+    global fieldCreature, deck, score
+    sumA = 0;
     for i in fieldCreature:
-        sum += i.num
+        sumA += i.num
     for i in deck:
         if(i.isCreature == True):
-            sum += i.num
-    print("スコア: {0}".format(820 - sum - 100))
+            sumA += i.num
+    # score = (MAISU/2+1)*MAISU/4 - sumA - 100
+    score = - sumA
+    state.reward = score
+    # print("スコア: {0}\n".format(score))
 
 def forcedBattle6(w):
     global life, fieldCreature
@@ -448,7 +469,7 @@ def forcedBattle6(w):
         # c.append(fieldCreature[-1])
         # print("\nバトルするクリーチャー: {0}".format(fieldCreature[-1].num))
         # print("手持ちの武器: ", end="")
-        printHandWeapon()
+        # printHandWeapon()
         if(handWeapon.__len__() == 0):
             # print("手持ちの武器がないため，ライフで受けます.")
             subLife()
@@ -496,28 +517,26 @@ def forcedBattleConsecutive(w):
     clist : int = []
     for i in creatures:
         clist.append(i)
-    while(not flag):
-        print(s)
+    # while(not flag):
+        # print(s)
 
-        print("手持ちの武器: ", end="")
-        printHandWeapon()
-        if(handWeapon.__len__() == 0):
-            print("手持ちの武器がないため，ライフで受けます.")
+        # print("手持ちの武器: ", end="")
+        # printHandWeapon()
+    if(handWeapon.__len__() == 0):
+        # print("手持ちの武器がないため，ライフで受けます.")
+        subLife()
+        creaturesBack(clist)
+        return True
+    else:
+        if(w == [-1]):
             subLife()
             creaturesBack(clist)
             return True
         else:
-            print("複数の武器を使用する場合は，スペースで区切って入力してくだい．\nライフで受ける場合は，'-1'と入力してくだい")
-            # print("handWeapon index: ", end="")
-            # w = list(map(int, input("handWeapon index: ").split()))
-            if(w == [-1]):
-                subLife()
-                creaturesBack(clist)
-                return True
-            else:
-                flag = slay(creatures, w)
-                if(not flag):
-                    print("倒せませんでした")
+            flag = slay(creatures, w)
+            if(not flag):
+                print("倒せませんでした")
+                return False
 
 def help():
     print(" 0 : help \t\t(コマンドリストを表示)")
@@ -540,14 +559,20 @@ def afterCheck(w):
     """
     global check
 
-    print('check: ', check)
+    state.reward = 0
+    # print('check: ', check)
     if(check == 1):
         clear()
     elif(check == 2):
         gameOver()
     elif(check == 3):
-        forcedBattleConsecutive(w)
+        # print("連番")
+        a = forcedBattleConsecutive(w)
+        if(a == False):
+            # print("帰ります")
+            return 1
     elif(check == 4):
+        # print("6体")
         forcedBattle6(w)
 
     return 0
@@ -557,30 +582,21 @@ def chooseCommand(n):
     入力を受け付け，コマンドを実行する
     '-1'と入力された時のみ False を返す.
     """
-
-    # print("\nCommand:", end=' ')
-    # try:
-    #     n = int(input("\nCommand:　"))
-    # except ValueError:
-    #     print("<数字を入力してください>")
-    #     return True
-    print("prestate: ",getState())
+    state.reward = 0
+    # print("prestate: ",getState())
     if(n[0] == 0):
         help()
     elif(n[0] == 1):
         c = draw()
     elif(n[0] == 2):
-        printFieldCreature()
-        # print("fieldCreature index: ", end="")
-        # c = list(map(int, input("fieldCreature index: ").split()))
+        # printFieldCreature()
         c = n[1]
+        # print("c: ", c)
         if(c.__len__() > 1):
             print("一度に退治できるクリーチャーは１体のみです．")
             return 0
-        # print("handWeapon index: ", end="")
-        printHandWeapon()
-        print("複数の武器を使用する場合は，スペースで区切って入力してくだい．")
-        # w = list(map(int, input("handWea(pon index: ").split()))
+        # printHandWeapon()
+        # print("複数の武器を使用する場合は，スペースで区切って入力してくだい．")
         w = n[2]
         slay(c, w)
     elif(n[0] == 3):
@@ -595,6 +611,7 @@ def chooseCommand(n):
         return -1
     else:
         print("コマンドが間違っています")
+    # print("ここから")
     return fieldCheck()
     # return 0
 
